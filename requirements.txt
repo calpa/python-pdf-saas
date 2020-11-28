@@ -2,3 +2,4 @@ fastapi
 xhtml2pdf
 aiofiles
 uvicorn
+python-multipart

@@ -4,7 +4,8 @@ from fastapi.responses import FileResponse
 import tempfile
 from typing import Optional
 
-from fastapi import FastAPI, Form
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -13,8 +14,12 @@ app = FastAPI()
 def read_root():
     return "Hello World!"
 
+class HTML(BaseModel):
+    body_html: Optional[str] = 'Hello World'
+    header_html: Optional[str] = ""
+
 @app.post('/pdf')
-def renderPDF(body_html: Optional[str] = Form('Hello World'), header_html: Optional[str] = Form("")):
+def renderPDF(html: HTML):
     source_html = """
     <!DOCTYPE html>
     <html>
@@ -24,13 +29,13 @@ def renderPDF(body_html: Optional[str] = Form('Hello World'), header_html: Optio
     <head>
     """
 
-    source_html += header_html
+    source_html += html.header_html
 
     source_html += """
     </head>
         <body>
     """
-    source_html += body_html
+    source_html += html.body_html
     source_html += """
         </body>
     </html>
@@ -41,7 +46,7 @@ def renderPDF(body_html: Optional[str] = Form('Hello World'), header_html: Optio
     with tempfile.NamedTemporaryFile("w+b", delete = False, suffix=".pdf") as result_file:
         output_filename = result_file.name
 
-        print(output_filename)
+        # print(output_filename)
 
         # convert HTML to PDF
         pisa_status = pisa.CreatePDF(
