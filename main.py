@@ -2,8 +2,9 @@ from typing import Optional
 from xhtml2pdf import pisa
 from fastapi.responses import FileResponse
 import tempfile
+from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 
 app = FastAPI()
 
@@ -12,17 +13,27 @@ app = FastAPI()
 def read_root():
     return "Hello World!"
 
-@app.get('/pdf')
-def renderPDF(text: str):
+@app.post('/pdf')
+def renderPDF(body_html: Optional[str] = Form('Hello World'), header_html: Optional[str] = Form("")):
     source_html = """
-        <!DOCTYPE html>
-        <html>
-            <body>
-            """
-    source_html += "<h1>" + text + "</h1>"
+    <!DOCTYPE html>
+    <html>
+    """
+
     source_html += """
-            </body>
-        </html>
+    <head>
+    """
+
+    source_html += header_html
+
+    source_html += """
+    </head>
+        <body>
+    """
+    source_html += body_html
+    source_html += """
+        </body>
+    </html>
     """
 
     print(source_html)
